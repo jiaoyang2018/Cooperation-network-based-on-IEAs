@@ -10,16 +10,11 @@ import copy
 
 # This function selects data points until a specific year based on the date_entry into force and date_ratification
 
-# Input: the original data in the format of dataframe 
+# Input: a dataframe of the original data in the format of dataframe 
 # Output: a dataframe of selected data points
 
 # Parameters:
-# 'year_list': a list of years
-# 'layer': which layer to project on, and should be 'top'(treaty layer), 'bottom' (country layer)
-# 'constraint':  'Ture' if 'layer' is set to be 'bottom', or 'False' if 'layer' is set to be 'top'.
-# 'depository_id' is a a depository id; If it is not zero, then treaties belonging to this depository are excluded from the network. 
-# 'treaty_excluded' is a treaty id, if treaty_excluded is not None, then the treaty will be excluded from the dataset
-# 'weighted': True or False
+# 'year': the year of interest
 # 'field_id' and 'subject_id' are for the function 'data_selection'.
 #  The default value of 'field_id' is None, otherwised it can be '1' for regional treaties or '2' for global treaties.
 #  The default values of 'subject_id' is an empty list '[]', or it can be a list of subject ids
