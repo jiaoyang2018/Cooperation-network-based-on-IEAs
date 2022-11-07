@@ -1,3 +1,6 @@
+# This file contains functions used to generate statistically significant networks and 
+# calculate local and global measures of networks in the main paper
+
 import numpy  as np
 import pandas as pd
 import networkx as nx

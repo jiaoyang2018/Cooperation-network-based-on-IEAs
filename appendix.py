@@ -1,5 +1,3 @@
-# This file contains functions to select data points and calculate weighted measures of networks
-
 import pandas as pd
 from datetime import datetime
 import numpy  as np
