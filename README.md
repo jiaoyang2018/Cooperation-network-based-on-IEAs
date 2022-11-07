@@ -11,7 +11,7 @@ Network construction and analysis are conducted by Python, while the regression 
 ## How to use the codes:
 
 ```
-import  weighted_network as wn
+import weighted_network as wn
 
 import dataset_construction as dc
 
