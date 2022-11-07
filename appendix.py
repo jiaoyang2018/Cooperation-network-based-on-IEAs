@@ -584,3 +584,186 @@ def significant_global_measures_bipcm_importance(year_list, field_id,subject_id,
 
 
     return df_1
+
+
+# This funtion aims to consider the role of the European Union.
+# In 65 of all the treateis the EU signed the agreement ahead of the majority of member states that were part of the block at the time.
+# In addition, there are 5 agreements which only have the EU, but not individual member countries, as a signatory. We
+# consider these 70 treaties as driven by the EU. They are assigned to the EU as an additional
+# node in the cooperation network. The remaining 52 agreements, as well as any IEAs not
+# signed by the EU, are assigned to individual member countries as before.
+
+# Input: a dataframe of 'parties.csv'
+# Output: a dataframe containing the global measures of the network in different years
+
+# Parameters:
+# 'year_list': a list of years
+# 'layer': which layer to project on, and should be 'top'(treaty layer), 'bottom' (country layer)
+# 'constraint':  'Ture' if 'layer' is set to be 'bottom', or 'False' if 'layer' is set to be 'top'
+# 'weighted': True or False
+# 'field_id' and 'subject_id' are for the function 'data_selection'.
+#  The default value of 'field_id' is None, otherwised it can be '1' for regional treaties or '2' for global treaties.
+#  The default values of 'subject_id' is an empty list '[]', or it can be a list of subject ids
+# 'projection_method': 'log', 'linear' or 'exp'; used in function 'importance_weighted_projection'
+
+
+def significant_network_EU(year_list,field_id,subject_id,layer,constraint,weighted):
+    
+    
+    df_parties_total=pd.read_csv('IEA_data/parties.csv')
+
+    list_TypeofDates=['date_entry_into_force','date_ratification','date_simple_sigNMture','date_definite_sigNMture','date_withdrawal','date_consent_to_be_bound','date_accession_approv','date_acceptance_approv','date_provisioNMl_application','date_succession','date_reservation']
+    for i in list_TypeofDates:
+        df_parties_total[i]=pd.to_datetime(df_parties_total[i],format='%d/%m/%Y')
+    df_parties_1=df_parties_total[(df_parties_total['date_entry_into_force']<=datetime(1947,12,31))|(df_parties_total['date_ratification']<=datetime(1947,12,31))]
+
+    # not exclude treaties after 2015, so need to use the function wn.data_selection()
+    old_treaties=set(df_parties_1['treaty_id'])
+    for i in old_treaties:
+        df_parties_total=df_parties_total[df_parties_total['treaty_id']!=i]
+
+    df_parties_total=df_parties_total[(df_parties_total['date_entry_into_force'].notnull())|(df_parties_total['date_ratification'].notnull())]
+
+
+    
+    df_EU_treaties=pd.read_csv('IEA_data/treaties_with_EU_correct.csv')
+    df_EU_treaties=df_EU_treaties.rename(columns={'index':'treaty_id'})
+    EU_countries=pd.read_csv('IEA_data/EU_countries.csv')
+    EU_countries['year_of_join']=pd.to_datetime(EU_countries['year_of_join'],format='%d/%m/%Y')
+
+    
+    EU_countries['EU']=True
+
+    treaties_eu=list(df_EU_treaties[df_EU_treaties['test']>=0]['treaty_id'])
+
+    
+    G_dic={}
+    
+    for year in tqdm(year_list):
+        
+        df_parties=wn.data_selection(df_parties_total,year,field_id,subject_id)
+        
+        df_parties.drop(columns=['code','name','type','field_application'], inplace=True)
+        
+        df_parties_com=combined_date(df_parties) # including EU countries       
+
+        
+        # for each EU dominate treaty, add EU as a party and remove other countries 
+        for i in treaties_eu:
+
+            df1=df_parties_total[df_parties_total['treaty_id']==i]
+            
+
+            # Select data points according to the dates of ratification and entry into force
+            df_parties_1=df1[((df1['date_ratification']<datetime(year,12,31))&(df1['date_withdrawal']>datetime(year,12,31)))|((df1['date_ratification']<datetime(year,12,31))&(df1['date_withdrawal'].isnull()))]
+            df_parties_2=df1[(df1['date_ratification'].isnull()&(df1['date_entry_into_force']<datetime(year,12,31))&(df1['date_withdrawal']>datetime(year,12,31)))|(df1['date_ratification'].isnull()&(df1['date_entry_into_force']<datetime(year,12,31))&df1['date_withdrawal'].isnull())]    
+            df12= df_parties_1.append(df_parties_2)
+            
+            if len(df12)==0:
+                continue
+            else:
+
+                # get the observations for the EU
+
+                dfl=combined_date(df12)
+                df2=dfl[dfl['party_code']=='EU']
+
+                # get the observations for European countries
+                df3=dfl.merge(EU_countries, how='left', left_on='party_code', right_on='code')
+                df3['interval']=df3.apply(lambda x:(x['date']-x['year_of_join']).days/356, axis=1)
+                df4=df3[df3['interval']>=0].drop(columns=['country_name','code', 'year_of_join','EU','interval'])
+
+                df_parties_com=pd.concat([df_parties_com,df2,df4,df4]).drop_duplicates(keep=False)# df_parties_com + df2 - df4
+
+
+        B=wn.bipartite_network(df_parties_com)# the top nodes are the treaties
+        G_weight=wn.projection(B,layer)# choose which layer to project on
+        G_matrix=nx.to_numpy_matrix(G_weight,weight='weight').A
+
+        num_nodes=G_weight.number_of_nodes()
+
+        # obtain the p-values
+        nodes_treaties= {n for n,d in B.nodes(data=True) if d['bipartite']==0}
+        nodes_parties= set(B) - nodes_treaties
+
+        Sparse_Matrix_B=bi.biadjacency_matrix(B,list(nodes_parties), list(nodes_treaties))# row_order, colunm_order
+        Matrix_B=Sparse_Matrix_B.A # the rows are the countries and the columns are the treaties
+        B_pcm = bipcm.BiPCM(Matrix_B, constraint)# choose a null model
+
+        p_value_countries_bipcm=B_pcm.lambda_motifs_main(bip_set=constraint, write=False)
+
+        # test if the p-value is significant by the False discovery rate
+        p_value_list=[]
+
+        for i in (range(0,num_nodes)):
+            for j in range(0,num_nodes):
+                if p_value_countries_bipcm[i][j]!=0:
+                    p_value_list.append(p_value_countries_bipcm[i][j])
+
+        p_value_list.sort(reverse=True) # decrease gradually
+        order=None
+        for k in range(0,len(p_value_list)):
+            if p_value_list[k]<=(len(p_value_list)-k)*0.01/len(p_value_list):
+                significant=p_value_list[k]
+                order=k # this is the number of links that should be removed
+                break
+        if order==None:
+            continue
+
+         # transfer the p-value matrix to link matrix
+        for i in range(0,num_nodes):
+            for j in range(0,num_nodes):
+                if p_value_countries_bipcm[i][j]> p_value_list[order]:
+                    p_value_countries_bipcm[i][j]=0
+
+        for i in range(0,num_nodes):
+            for j in range(0,num_nodes):
+                if p_value_countries_bipcm[i][j]==0:
+                    G_matrix[i][j]=0   
+
+        G_bipcm_sig=nx.from_numpy_matrix(G_matrix, create_using=None)
+
+        node_list=list(nx.nodes(G_bipcm_sig))
+        if layer=='bottom':
+            G_sig=nx.relabel_nodes(G_bipcm_sig, dict(zip(node_list,list(nodes_parties))))
+        else:
+            G_sig=nx.relabel_nodes(G_bipcm_sig, dict(zip(node_list,list(nodes_treaties))))
+
+        degrees=dict(nx.degree(G_sig))
+        for k,v in degrees.items():
+            if v==0:
+                G_sig.remove_node(k)
+
+     
+        if layer=='top':
+            df_1=pd.DataFrame()
+            df_1['treaty_id']=list(nx.nodes(G_sig))
+            df_2=pd.merge(df_1,df_depository,how='outer',on='treaty_id')
+            dic_treaty_depository=dict(zip(df_2['treaty_id'],df_2['depository_id']))
+            nx.set_node_attributes(G_sig, dic_treaty_depository, name='depository_id')
+            
+        dic_degree=dict(nx.degree(G_sig))
+        dic_strength=dict(nx.degree(G_sig,weight='weight'))
+        
+        if weighted==True:
+            dic_betweenness_centrality=wn.betweenness_centrality_weighted(G_sig)
+            dic_closeness_centrality=wn.closeness_centrality_weighted(G_sig)
+            #dic_local_clustering_coefficient=wn.local_clustering_coefficient(G_sig)
+            #dic_eigenvector=nx.eigenvector_centrality(G_sig,max_iter=200,weight='weight')
+        if weighted==False:
+            dic_betweenness_centrality=nx.betweenness_centrality(G_sig)
+            dic_closeness_centrality=nx.closeness_centrality(G_sig)
+            
+        
+        nx.set_node_attributes(G_sig, year, name='year')
+        nx.set_node_attributes(G_sig, dic_degree, name='degree')
+        nx.set_node_attributes(G_sig, dic_strength, name='strength')
+        nx.set_node_attributes(G_sig, dic_closeness_centrality, name='closeness_centrality')
+        nx.set_node_attributes(G_sig, dic_betweenness_centrality, name='betweenness_centrality')
+        
+        
+        G_dic[year]=G_sig
+        
+    
+    return G_dic
+
