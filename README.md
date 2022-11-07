@@ -8,7 +8,7 @@ Carattini, Stefano, Sam Fankhauser, Jianjian Gao, Caterina Gennaioli, and Pietro
 
 Network construction and analysis are conducted by Python, while the regression analysis is performed by Stata.
 
-## How to use the code:
+## How to use the codes:
 
 ```
 import  weighted_network as wn
