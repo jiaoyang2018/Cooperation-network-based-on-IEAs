@@ -17,7 +17,7 @@ import appendix as ap
 
 ## Cite 
 
-Please cite our paper if you use this code in your own work:
+Please cite our paper if you use these codes in your own work:
 
 @article{carattini2021does,
   title={What does network analysis teach us about international environmental cooperation?},
