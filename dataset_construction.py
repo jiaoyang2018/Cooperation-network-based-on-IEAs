@@ -1,5 +1,4 @@
-# This file contains functions used to generate statistically significant networks and 
-# calculate local and global measures of networks in the main paper
+# This file contains functions used to generate statistically significant networks
 
 import numpy  as np
 import pandas as pd
@@ -342,7 +341,7 @@ def significant_local_measures_bipcm(G_dic,layer):
 # 'year_list': a list of years
 # 'layer': which layer to project on, and should be 'top'(treaty layer), 'bottom' (country layer)
 # 'constraint':  'Ture' if 'layer' is set to be 'bottom', or 'False' if 'layer' is set to be 'top'.
-# 'depository_excluded' is a a depository id; If it is not zero, then treaties belonging to this depository are excluded from the network. 
+# 'depository_excluded' is a list of depository ids; If it is not empty, then treaties belonging to this depository are excluded from the network. 
 # 'treaty_excluded' is a treaty id, if treaty_excluded is not None, then the treaty will be excluded from the dataset
 # 'weighted': True or False
 # 'field_id' and 'subject_id' are for the function 'data_selection'.
@@ -350,7 +349,7 @@ def significant_local_measures_bipcm(G_dic,layer):
 #  The default values of 'subject_id' is an empty list '[]', or it can be a list of subject ids
 
 
-def significant_global_measures_bipcm_depository(year_list, field_id,subject_id, layer, constraint, depository_excluded, subject_excluded, weighted=True):
+def significant_global_measures_bipcm(year_list, field_id,subject_id, layer, constraint, depository_excluded, subject_excluded, weighted=True):
     
     dic_1={}
     dic_2={}
@@ -376,16 +375,23 @@ def significant_global_measures_bipcm_depository(year_list, field_id,subject_id,
         df_parties_total=df_parties_total[df_parties_total['treaty_id']!=i]
 
 
-    df_depository=pd.read_csv('IEA_data/depository_rel.csv',sep=',')
-    if depository_excluded!=0:
-            df_treaty_id=df_depository[df_depository['depository_id']==depository_excluded]    
-            df_parties_1=pd.merge(df_parties_total,df_treaty_id,how='left')
-            df_parties_2=df_parties_1[df_parties_1['depository_id']!=depository_excluded]
+    df_depo_real=pd.read_csv('IEA_data/depository_rel.csv',sep=',')
+    if len(depository_excluded)!=0:
+        list_depo=[]
+        for i in depository_excluded:
+            df1=df_depo_real[df_depo_real['depository_id']==i]
+            list_depo.append(df1)
+
+        df2=pd.concat(list_depo)
+
+        df3=df_parties_total.merge(df2,how='left', on='treaty_id')
+        df_parties_2=df3[df3['depository_id'].isnull()]
+
+            
     else:
         df_parties_2=df_parties_total
     
 
-    
     for year in tqdm(year_list):
         
         df_parties=wn.data_selection(df_parties_2,year,field_id,subject_id)
