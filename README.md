@@ -8,6 +8,7 @@ Carattini, Stefano, Sam Fankhauser, Jianjian Gao, Caterina Gennaioli, and Pietro
 
 Network construction and analysis are conducted by Python, while the regression analysis is performed by Stata.
 
+```
 - weighted_network.py contains functions defined to calcualte weighted gloabl and local measures of networks;
 - dataset_construction.py contains functions defined to produce statistically significant one-mode networks and calculate local and global measures by calling functions in weighted_network.py;
 - appendix.py contains functions defined to perform the calculations in the appendix;
@@ -15,7 +16,7 @@ Network construction and analysis are conducted by Python, while the regression 
 - results_analysis_main_paper.ipynb contains codes for tables and figures in the main paper;
 - results_analysis_appendix.ipynb contains codes for tables and figures in the appendix;
 - appendix_regression.do contains codes for the regression tables in the appendix.
-
+```
 
 ## How to use the functions defined in weighted_network.py, dataset_construction.py and appendix.py:
 
