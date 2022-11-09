@@ -6,7 +6,7 @@ Carattini, Stefano, Sam Fankhauser, Jianjian Gao, Caterina Gennaioli, and Pietro
 
 ## Data 
 
-The data on international environmental agreements(IEAs) is from [ECOLEX](https://www.ecolex.org/). 
+The data on international environmental agreements(IEAs) is from [ECOLEX](https://www.ecolex.org/). Please contact us for the data.
 
 ## Codes
 
