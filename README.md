@@ -28,7 +28,7 @@ Network construction and analysis are conducted by Python, while the regression 
 - appendix_regression.do: Stata codes for the regression tables in the appendix.
 ```
 
-## How to use the functions defined in weighted_network.py, dataset_construction.py and appendix.py:
+## How to use the functions defined in weighted_network.py, dataset_construction.py and appendix.py
 
 ```
 import weighted_network as wn
