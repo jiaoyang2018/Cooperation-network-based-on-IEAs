@@ -4,6 +4,10 @@ These are the codes for the implementation of the construction and analysis of t
 
 Carattini, Stefano, Sam Fankhauser, Jianjian Gao, Caterina Gennaioli, and Pietro Panzarasa. [What does network analysis teach us about international environmental cooperation?](https://arxiv.org/abs/2106.08883) Ecological Economics. 2022.  arXiv preprint arXiv:2106.08883. (Accepted)
 
+## Data 
+
+The data on international environmental agreements(IEAs) is from [Ecolex](https://www.ecolex.org/). 
+
 ## Codes
 
 Network construction and analysis are conducted by Python, while the regression analysis is performed by Stata.
