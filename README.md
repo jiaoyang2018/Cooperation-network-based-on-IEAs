@@ -10,12 +10,12 @@ The data on international environmental agreements(IEAs) is from [ECOLEX](https:
 
 ## Codes
 
-Network construction and analysis are conducted by Python, while the regression analysis is performed by Stata.
+Network construction and analysis are conducted by **Python**, while the regression analysis is performed by **Stata**.
 
 ```
 - weighted_network.py: functions defined to calcualte weighted gloabl and local measures of networks;
 
-- dataset_construction.py: functions defined to produce statistically significant one-mode networks and calculate local and global measures by calling functions in weighted_network.py;
+- dataset_construction.py: functions defined to produce statistically significant one-mode networks and calculate local and global measures by calling functions in **weighted_network.py**;
 
 - appendix.py: functions defined to perform the calculations in the appendix;
 
