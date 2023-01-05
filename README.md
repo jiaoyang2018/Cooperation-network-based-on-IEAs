@@ -45,10 +45,13 @@ import appendix as ap
 Please cite our paper if you use these codes in your own work:
 
 ```
-@article{carattini2021does,
+@article{carattini2023does,
   title={What does network analysis teach us about international environmental cooperation?},
   author={Carattini, Stefano and Fankhauser, Sam and Gao, Jianjian and Gennaioli, Caterina and Panzarasa, Pietro},
-  journal={Ecological economics},
-  year={2022}
+  journal={Ecological Economics},
+  volume={205},
+  pages={107670},
+  year={2023},
+  publisher={Elsevier}
 }
 ```
