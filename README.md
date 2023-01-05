@@ -2,7 +2,9 @@
 
 These are the codes for the implementation of the construction and analysis of the international environmental cooperation network based on International Environmental Agreements (IEAs), as described in our paper:
 
-Carattini, Stefano, Sam Fankhauser, Jianjian Gao, Caterina Gennaioli, and Pietro Panzarasa. [What does network analysis teach us about international environmental cooperation?](https://arxiv.org/abs/2106.08883) Ecological Economics. 2022.  arXiv preprint arXiv:2106.08883. (Accepted)
+
+Carattini, Stefano, Sam Fankhauser, Jianjian Gao, Caterina Gennaioli, and Pietro Panzarasa. [What does network analysis teach us about international environmental cooperation?](https://www.sciencedirect.com/science/article/pii/S0921800922003317). Ecological Economics 205 (2023): 107670.
+
 
 ## Data 
 
